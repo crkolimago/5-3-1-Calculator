@@ -1,0 +1,89 @@
+<!--
+Author: Chris Kolimago
+Title: 5/3/1 Calculator
+Description:
+	* Displays percentages based on training max (calculated from 1RM) rounded to the nearest 5.
+	* Utilizes the change making (https://en.wikipedia.org/wiki/Change-making_problem)
+	  and unbounded knapsack (https://www.geeksforgeeks.org/unbounded-knapsack-repetition-items-allowed/)
+	  algorithms to calculate the most efficent weights for the bar across sets.
+-->
+<html>
+<head>
+	<title>5/3/1 Calculator</title>
+	<!--JAVASCRIPT-->
+	<script type="text/javascript">
+		function calculate() {
+			var num = +document.getElementById("1RM").value;
+			num = num*0.9;
+			document.getElementById("3RMr").innerHTML = round5(num);
+			document.getElementById("40r").innerHTML = round5(num*.4);
+			document.getElementById("50r").innerHTML = round5(num*.5);
+			document.getElementById("60r").innerHTML = round5(num * .6 );
+			document.getElementById("65r").innerHTML = round5(num*.65);
+			document.getElementById("75r").innerHTML = round5(num*.75);
+			document.getElementById("85r").innerHTML = round5(num*.85);
+			document.getElementById("70r").innerHTML = round5(num*.7);
+			document.getElementById("80r").innerHTML = round5(num*.8);
+			document.getElementById("90r").innerHTML = round5(num*.9);
+			document.getElementById("75s").innerHTML = round5(num*.75);
+			document.getElementById("85s").innerHTML = round5(num*.85);
+			document.getElementById("95r").innerHTML = round5(num*.95);
+		}
+		
+		function round5(num) {
+			return Math.ceil(num/5)*5;
+		}
+		
+		/*
+		function optCall(var W) {
+			
+		}
+		
+		function opt(var W, var n, var[] val, var[] wt) {
+			var dp = new Array(W+1);
+		
+			for(var i=0; i<=W, i++) {
+				for(var j=0; j<n;j++) {
+					if(wt[j] <= i) {
+						dp[i] = Math.max(dp[i], dp[i-wt[j]] + val[j]);
+					}
+				}
+			}
+			
+			return dp[W];
+		}
+		*/
+	</script>
+</head>
+<body>
+	<!--TITLE-->
+	<h1>Calculations</h1>
+	<!--FORM-->
+	<form>
+		<!--TEXT BOX-->
+		Enter your 1RM: <input type="text" id="1RM" />
+		<!--BUTTON-->
+		<input type="button" value="Go" onclick="calculate()" /></br></br>
+	</form>
+	
+	<!--RESULTS-->
+	<p>TM : &emsp;<span id="3RMr"></span></p>
+		</br>
+	<p>40% :	&emsp;<span id="40r"></span>&emsp;|&emsp; </p>
+	<p>50% :	&emsp;<span id="50r"></span></p>
+	<p>60% :	&emsp;<span id="60r"></span></p>
+		</br>
+	<p>65% :	&emsp;<span id="65r"></span></p>
+	<p>75% :	&emsp;<span id="75r"></span></p>
+	<p>85% :	&emsp;<span id="85r"></span></p>
+		</br>
+	<p>70% :	&emsp;<span id="70r"></span></p>
+	<p>80% :	&emsp;<span id="80r"></span></p>
+	<p>90% :	&emsp;<span id="90r"></span></p>
+		</br>
+	<p>75% :	&emsp;<span id="75s"></span></p>
+	<p>85% :	&emsp;<span id="85s"></span></p>
+	<p>95% :	&emsp;<span id="95r"></span></p>
+		</br>
+</body>
+</html>
