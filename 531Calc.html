@@ -5,7 +5,7 @@ Description:
 	* Displays percentages based on training max (calculated from 1RM) rounded to the nearest 5.
 	* Utilizes the change making (https://en.wikipedia.org/wiki/Change-making_problem)
 	  and unbounded knapsack (https://www.geeksforgeeks.org/unbounded-knapsack-repetition-items-allowed/)
-	  algorithms to calculate the most efficent weights for the bar across sets.
+	  algorithms to calculate the most efficent weights for the bar across all sets.
 -->
 <html>
 <head>
@@ -13,51 +13,101 @@ Description:
 	<!--JAVASCRIPT-->
 	<script type="text/javascript">
 		function calculate() {
-			var num = +document.getElementById("1RM").value;
-			num = num*0.9;
-			document.getElementById("3RMr").innerHTML = round5(num);
-			document.getElementById("40r").innerHTML = round5(num*.4);
-			document.getElementById("50r").innerHTML = round5(num*.5);
-			document.getElementById("60r").innerHTML = round5(num * .6 );
-			document.getElementById("65r").innerHTML = round5(num*.65);
-			document.getElementById("75r").innerHTML = round5(num*.75);
-			document.getElementById("85r").innerHTML = round5(num*.85);
-			document.getElementById("70r").innerHTML = round5(num*.7);
-			document.getElementById("80r").innerHTML = round5(num*.8);
-			document.getElementById("90r").innerHTML = round5(num*.9);
-			document.getElementById("75s").innerHTML = round5(num*.75);
-			document.getElementById("85s").innerHTML = round5(num*.85);
-			document.getElementById("95r").innerHTML = round5(num*.95);
+			var tm = +document.getElementById("1RM").value;
+			tm = tm*0.9;
+			document.getElementById("3RMr").innerHTML = round5(tm);
+			document.getElementById("40r").innerHTML = round5(tm*.4) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.4)-45)/2);
+			document.getElementById("50r").innerHTML = round5(tm*.5) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.5)-45)/2);
+			document.getElementById("60r").innerHTML = round5(tm*.6) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.6)-45)/2);
+			document.getElementById("65r").innerHTML = round5(tm*.65) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.65)-45)/2);
+			document.getElementById("75r").innerHTML = round5(tm*.75) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.75)-45)/2);
+			document.getElementById("85r").innerHTML = round5(tm*.85) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.85)-45)/2);
+			document.getElementById("70r").innerHTML = round5(tm*.7) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.7)-45)/2);
+			document.getElementById("80r").innerHTML = round5(tm*.8) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.8)-45)/2);
+			document.getElementById("90r").innerHTML = round5(tm*.9) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.9)-45)/2);
+			document.getElementById("75s").innerHTML = round5(tm*.75) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.75)-45)/2);
+			document.getElementById("85s").innerHTML = round5(tm*.85) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.85)-45)/2);
+			document.getElementById("95r").innerHTML = round5(tm*.95) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.95)-45)/2);
 		}
+		/*
+		function calculate() {
+			var tm = +document.getElementById("1RM").value;
+			tm = tm*0.9;
+			document.getElementById("3RMr").innerHTML = round5(tm);
+			document.getElementById("40r").innerHTML = round5(tm*.4) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.4)-45)/2);
+			document.getElementById("50r").innerHTML = round5(tm*.5);
+			document.getElementById("60r").innerHTML = round5(tm*.6);
+			document.getElementById("65r").innerHTML = round5(tm*.65);
+			document.getElementById("75r").innerHTML = round5(tm*.75);
+			document.getElementById("85r").innerHTML = round5(tm*.85);
+			document.getElementById("70r").innerHTML = round5(tm*.7);
+			document.getElementById("80r").innerHTML = round5(tm*.8);
+			document.getElementById("90r").innerHTML = round5(tm*.9);
+			document.getElementById("75s").innerHTML = round5(tm*.75);
+			document.getElementById("85s").innerHTML = round5(tm*.85);
+			document.getElementById("95r").innerHTML = round5(tm*.95);
+		}
+		*/
 		
+		//round integer to the nearest multiple of 5 (https://stackoverflow.com/questions/18953384/javascript-round-up-to-the-next-multiple-of-5)
 		function round5(num) {
 			return Math.ceil(num/5)*5;
 		}
 		
-		/*
-		function optCall(var W) {
+		function makeWeightHelper(W) {
+			if(W < 45) return 45;
 			
+			//var weights = [5, 10, 25, 35, 45];
+			var weights = [2.5, 5.0, 10.0, 25.0, 35.0, 45.0];
+			var numWeights = 6;
+			//var numWeights = 5;
+			
+			console.log(Math.floor(W+1));
+			
+			var used = new Array(Math.floor(W+1));
+			var last = new Array(Math.floor(W+1));
+			
+			makeWeight(weights, numWeights, W, used, last);
+			
+			//console.log(used[W]);
+			
+			//var result;
+			
+			for(var i = W; i > 0 ;) {
+				console.log(last[i] + " ");
+				//result += last[i] + " ";
+				i -= last[i];
+			}
+			console.log("\n");
+			//return result;
 		}
 		
-		function opt(var W, var n, var[] val, var[] wt) {
-			var dp = new Array(W+1);
-		
-			for(var i=0; i<=W, i++) {
-				for(var j=0; j<n;j++) {
-					if(wt[j] <= i) {
-						dp[i] = Math.max(dp[i], dp[i-wt[j]] + val[j]);
+		//modified make change function // adapted from (https://users.cs.fiu.edu/~weiss/dsj3/code/MakeChange.java)
+		function makeWeight(weights, numWeights, W, weightsUsed, lastWeight) {
+			weightsUsed[0] = 0; lastWeight[0] = 1;
+			
+			for(var num = 1; num <= W; num++) {
+				var minWeights = num;
+				var newWeight = 1;
+				
+				for(var i = 0; i < numWeights; i++) {
+					if( weights[i] > num ) continue;
+					if( weightsUsed[num - weights[i]] + 1 < minWeights ) {
+						minWeights = weightsUsed[num - weights[i]] + 1;
+						newWeight = weights[i];
 					}
 				}
+				
+				weightsUsed[num] = minWeights;
+				lastWeight[num] = newWeight;
 			}
-			
-			return dp[W];
 		}
-		*/
 	</script>
 </head>
 <body>
 	<!--TITLE-->
 	<h1>Calculations</h1>
+	<h6>Description</h6>
 	<!--FORM-->
 	<form>
 		<!--TEXT BOX-->
@@ -69,7 +119,7 @@ Description:
 	<!--RESULTS-->
 	<p>TM : &emsp;<span id="3RMr"></span></p>
 		</br>
-	<p>40% :	&emsp;<span id="40r"></span>&emsp;|&emsp; </p>
+	<p>40% :	&emsp;<span id="40r"></span></p>
 	<p>50% :	&emsp;<span id="50r"></span></p>
 	<p>60% :	&emsp;<span id="60r"></span></p>
 		</br>
