@@ -2,10 +2,9 @@
 Author: Chris Kolimago
 Title: 5/3/1 Calculator
 Description:
-	* Displays percentages based on training max (calculated from 1RM) rounded to the nearest 5.
+	* Displays percentages based on training max rounded to the nearest 5.
 	* Utilizes the change making (https://en.wikipedia.org/wiki/Change-making_problem)
-	  and unbounded knapsack (https://www.geeksforgeeks.org/unbounded-knapsack-repetition-items-allowed/)
-	  algorithms to calculate the most efficent weights for the bar across all sets.
+	  algorithm to calculate the most efficent weights for the bar across all sets.
 -->
 <html>
 <head>
@@ -29,57 +28,43 @@ Description:
 			document.getElementById("95r").innerHTML = round5(tm*.95) + "&emsp;|&emsp;" + makeWeightHelper(round5((round5(tm*.95)-45)/2));
 		}
 		
-		/*
-		function calculate() {
-			var tm = +document.getElementById("1RM").value;
-			tm = tm*0.9;
-			document.getElementById("3RMr").innerHTML = round5(tm);
-			document.getElementById("40r").innerHTML = round5(tm*.4) + "&emsp;|&emsp;" + makeWeightHelper((round5(tm*.4)-45)/2);
-			document.getElementById("50r").innerHTML = round5(tm*.5);
-			document.getElementById("60r").innerHTML = round5(tm*.6);
-			document.getElementById("65r").innerHTML = round5(tm*.65);
-			document.getElementById("75r").innerHTML = round5(tm*.75);
-			document.getElementById("85r").innerHTML = round5(tm*.85);
-			document.getElementById("70r").innerHTML = round5(tm*.7);
-			document.getElementById("80r").innerHTML = round5(tm*.8);
-			document.getElementById("90r").innerHTML = round5(tm*.9);
-			document.getElementById("75s").innerHTML = round5(tm*.75);
-			document.getElementById("85s").innerHTML = round5(tm*.85);
-			document.getElementById("95r").innerHTML = round5(tm*.95);
-		}
-		*/
-		
 		//round integer to the nearest multiple of 5 (https://stackoverflow.com/questions/18953384/javascript-round-up-to-the-next-multiple-of-5)
 		function round5(num) {
 			return Math.round(num/5)*5;
 		}
 		
 		function makeWeightHelper(W) {
-			//if(W < 45) return 45;
+			if(W <= 0) return "BAR";
 			
-			//var weights = [5, 10, 25, 35, 45];
 			var weights = [5.0, 10.0, 25.0, 35.0, 45.0];
 			var numWeights = 5;
-			//var numWeights = 5;
-			
-			//console.log(Math.floor(W+1));
 			
 			var used = new Array(Math.floor(W+1));
 			var last = new Array(Math.floor(W+1));
 			
 			makeWeight(weights, numWeights, W, used, last);
 			
-			//console.log(used[W]);
 			
-			var result = "";
+			var result = new Array(used[W]);
+			var j=0;
 			
 			for(var i = W; i > 0 ;) {
-				//console.log(last[i] + " ");
-				result += last[i] + " ";
+				result[j++] = last[i];
 				i -= last[i];
 			}
-			//console.log("\n");
-			return result;
+			
+			return format(result);
+		}
+		
+		
+		function format(result) {
+			var out = result[0];
+			
+			for(var i = 1; i < result.length; i++) {
+				out += " + " + result[i];
+			}
+			
+			return out;
 		}
 		
 		//modified make change function // adapted from (https://users.cs.fiu.edu/~weiss/dsj3/code/MakeChange.java)
@@ -106,8 +91,8 @@ Description:
 </head>
 <body>
 	<!--TITLE-->
-	<h1>Calculations</h1>
-	<h6>Description</h6>
+	<h1>5/3/1 Calculator</h1>
+	<h4>Calculates which weights to put on the bar based on percentages of current training max.</h4>
 	<!--FORM-->
 	<form>
 		<!--TEXT BOX-->
